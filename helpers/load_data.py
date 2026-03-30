@@ -476,8 +476,13 @@ def process_data(df: pd.DataFrame, dataset: str, data_type: str) -> pd.DataFrame
             "2025-09": "Event 5",
         }
         df["EVENT"] = df["EVENT_KEY"].map(event_map)
-        mask = df["TASK_CODE_2"] == "NYC_OU2_NC"
-        df.loc[mask, "EVENT"] = "OU2 Point Sources"
+
+        sample_code = df["SYS_SAMPLE_CODE"].astype(str).str.upper()
+
+        mask_er = sample_code.str.contains("NYCDEP-ER-", na=False)
+        mask_nc = ~mask_er
+
+        df.loc[mask_nc, "EVENT"] = "OU2 Point Sources"
 
         # merge TSS values for weighted averages
         tss = df[df["CAS_RN"] == "TSS"].copy()
